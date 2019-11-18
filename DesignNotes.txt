@@ -1,0 +1,51 @@
+﻿Design Requirements [9/15/2019] from @FlashingFox:
+	- Reaction based voting system
+	- Scheduled messages to pass along scheduling and game information to help coordiate events
+	- Request attendance from users
+
+	- THREAD SAFE (SEMAPHORE YOUR SHIT)
+
+Program Data Layout:
+	- GameEvent
+		- Start DateTime
+		- End DateTime
+		- Type
+			- User event
+			- Group event
+		- Title
+		- Description
+		- User list (invited)
+		- User list (declined)
+		- User list (accepted)
+		- Group list (invited)
+		- Group list (declined)
+		- Group list (accepted)
+	
+	- User
+		- ID
+	
+	- Group
+		- ID
+		- Name
+		- User list
+
+Expected workflow:
+	- Event gets created and scheduled for a day
+		User sends a message to the bot: "CreateNewEvent: date, time, title, desc, event type"
+	- Bot announces to a certain chat room, new event has been created, vote by clicking
+		on a reaction to this message for the game mode
+	- Bot tallys up the votes at a certain time and announces the winning game mode
+	- Bot announces to the same chat room possible event times
+	- Bot tallys up the votes at a certain time and announces the scheduled time
+	- ?? Bot pings users who are scheduled for the event to remind them ahead of time
+
+
+	TODO:
+	DONE - Add default game types list command
+	DONE - Remove prefix and suffix equals signs in messages
+	DONE - BOLD TEXT
+	DONE TEST - In case of a tie, random chance it
+	- In case of clan war vote, if >11 compose a DM to each user and let them know that we will try and get a second event going
+	DONE - Add game type and time into final annoucement message
+	DONE - Figure out timezones [Feature requested]
+	DONE - Add PST and EST time outputs
