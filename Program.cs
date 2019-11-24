@@ -475,7 +475,7 @@ namespace DiscordBot2 {
 
                 //Output the annoucement message and save the resultant discord message ID.
                 //  The message ID will be saved and used to add the voting buttons (emoji reactions) and used to tally up the votes later.
-                IUserMessage msg = OutputMessage(outputChannel, outputMessage);
+                RestUserMessage msg = OutputMessage(outputChannel, outputMessage);
                 announcementEvent.gameTypeDiscordMessageID = msg.Id;
                 foreach (VotedGameType vgt in announcementEvent.gameTypes) {
                     if (vgt.messageEmoji == "") {
@@ -587,7 +587,7 @@ namespace DiscordBot2 {
             }
 
             //Now lookup the actual message with the voting buttons
-            IMessage gameTypeVoteMessage = stc.GetMessageAsync(announcementEvent.gameTypeDiscordMessageID).Result;
+            IUserMessage gameTypeVoteMessage = stc.GetMessageAsync(announcementEvent.gameTypeDiscordMessageID).Result as IUserMessage;
             if (gameTypeVoteMessage == null || gameTypeVoteMessage.Reactions.Count == 0) {
                 //The annoucement message was deleted, mark the event as completed in the database and exit
                 using (dbConnection = new MySqlConnection(MysqlConnectionString)) {
@@ -752,7 +752,7 @@ namespace DiscordBot2 {
                 
                 //Output the annoucement message and save the resultant discord message ID.
                 //  The message ID will be saved and used to add the voting buttons (emoji reactions) and used to tally up the votes later.
-                IUserMessage msg = OutputMessage(outputChannel, outputMessage);
+                RestUserMessage msg = OutputMessage(outputChannel, outputMessage);
                 announcementEvent.gameTimeDiscordMessageID = msg.Id;
                 foreach(VotedGameTime vgt in announcementEvent.gameTimes) {
                     if (vgt.messageEmoji == "") {
@@ -861,7 +861,7 @@ namespace DiscordBot2 {
             }
 
             //Now lookup the actual message with the voting buttos
-            IMessage gameTimeVoteMessage = stc.GetMessageAsync(announcementEvent.gameTimeDiscordMessageID).Result;
+            IUserMessage gameTimeVoteMessage = stc.GetMessageAsync(announcementEvent.gameTimeDiscordMessageID).Result as IUserMessage;
             if (gameTimeVoteMessage == null) {
                 //The annoucement message was delete, mark the event as completed in the database and exit
                 using (dbConnection = new MySqlConnection(MysqlConnectionString)) {
@@ -1317,7 +1317,7 @@ namespace DiscordBot2 {
             using (dbConnection = new MySqlConnection(MysqlConnectionString)) {
                 using (MySqlCommand cmd = dbConnection.CreateCommand()) {
                     dbConnection.Open();
-                    cmd.CommandText = "SELECT EXISTS (SELECT OutputChanelDiscordID FROM serverconfig WHERE DiscordID = @p1 AND OutputChannelDiscordID = @p2);";
+                    cmd.CommandText = "SELECT EXISTS (SELECT OutputChannelDiscordID FROM serverconfig WHERE DiscordID = @p1 AND OutputChannelDiscordID = @p2);";
                     cmd.Parameters.AddWithValue("@p1", serverID);
                     cmd.Parameters.AddWithValue("@p2", channelID);
                     if (Convert.ToInt32(cmd.ExecuteScalar()) >= 1) {
@@ -1342,7 +1342,7 @@ namespace DiscordBot2 {
         /// <param name="c">The discord channel to output the text message to</param>
         /// <param name="s">The message to output</param>
         /// <returns></returns>
-        private IUserMessage OutputMessage(ISocketMessageChannel c, string s) {
+        private RestUserMessage OutputMessage(ISocketMessageChannel c, string s) {
             if (s.Length == 0) {
                 return null;
             }
@@ -1357,8 +1357,8 @@ namespace DiscordBot2 {
         /// </summary>
         /// <param name="msg">The discord message to add the reaction to</param>
         /// <param name="e">The reaction to add</param>
-        private void OutputReaction(IUserMessage msg, Emoji e) {
-            var ret = msg.AddReactionAsync(e);  //Add the reaction
+        private void OutputReaction(RestUserMessage msg, Emoji e) {
+            var ret = msg.AddReactionAsync(e, null);  //Add the reaction
             ret.Wait();                         //Wait until the reaction has actually been posted
             Thread.Sleep(BOT_MESSAGE_DELAY);    //Rate limits
         }

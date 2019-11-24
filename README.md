@@ -44,3 +44,25 @@ In order to provide login information for the discord bot as well as the MYSQL s
 It should provide the following values:
 token=...		[The authentication token for the discord bot goes here]
 mysql_connection=Server=localhost; database=***; UID=***; password=***; Allow User Variable=True
+
+## Actually building the damn thing and getting it to run on a raspberry pi:
+====Visual Studio Command Prompt====
+dotnet publish -r linux-arm
+
+scp $Project/bin/Debug/netcoreapp2.2/linux-arm/publish -> RaspberryPi
+
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install mysql-server
+sudo mysql_secure_installation
+	Y to all
+sudo mysql -u root -p
+	Create root password
+	[Copying and pasting from ./SQLScripts/Schema.sql, create the database structure for the bot]
+	[Also watch out for utf8 vs utf8mb4 encoding. utf8mb4 MUST BE USED]
+	CREATE USER 'discordbot'@'localhost' IDENTIFIED BY 'pw';
+	GRANT ALL PRIVILEGES ON discordbot.* TO 'discordbot'@'localhost';
+	FLUSH PRIVILEGES;
+sudo apt-get install curl libunwind8 gettext apt-transport-https
+chmod +x DiscordBotEventsScheduler
+./DiscordBotEventsScheduler
